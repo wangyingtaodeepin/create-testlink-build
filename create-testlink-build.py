@@ -45,7 +45,7 @@ def timestamp2datetime(timestamp, convert_to_local=False):
 if None == testplan_name:
     data = get_reviewIdTopic(review_id)
     print(data)
-    review_topic = data["topic"]
+    testplan_name = data["topic"]
     buildname = data["name"]
 
 if None == testproject_name or None == testplan_name or None == TESTLINKAPIKEY or None == SERVER_URL_ENV:
