@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import xmlrpc.client
+import datetime
 import requests
 import json
 import os
@@ -27,7 +28,7 @@ def get_reviewIdTopic(id):
     review_topic = ''
     try:
         review_topic = review_id + ' ' + jsondata["result"]["topic"]
-        buildname = jsondata["result"]["submit_timestamp"]
+        buildname = timestamp2datetime(jsondata["result"]["submit_timestamp"])
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
         return None
