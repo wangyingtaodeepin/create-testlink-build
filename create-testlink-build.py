@@ -11,6 +11,7 @@ testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
 SERVER_URL_ENV = os.getenv("SERVER_URL") or None
 review_id = None
+buildname = None
 
 def get_reviewIdTopic(id):
     review_id = os.environ.get('REVIEW_ID') or None
@@ -26,12 +27,19 @@ def get_reviewIdTopic(id):
     review_topic = ''
     try:
         review_topic = review_id + ' ' + jsondata["result"]["topic"]
+        buildname = jsondata["result"]["submit_timestamp"]
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
         return None
     return review_topic
 
-
+def timestamp2datetime(timestamp, convert_to_local=False):
+    if isinstance(timestamp, int):
+        dt = datetime.datetime.utcfromtimestamp(timestamp)
+        if convert_to_local: # 是否转化为本地时间
+            dt = dt + datetime.timedelta(hours=8) # 中国默认时区
+        return dt
+    return timestamp
 
 if None == testplan_name:
     testplan_name = get_reviewIdTopic(review_id)
@@ -73,6 +81,10 @@ class TestlinkAPIClient:
     def createTestPlan(self, dictargs):
         dictargs["devKey"] = self.devKey
         return self.server.tl.createTestPlan(dictargs)
+
+    def createBuild(self, dictargs):
+        dictargs["devKey"] = self.devKey
+        return self.server.tl.createBuild(dictargs)
 
     def addTestCaseToTestPlan(self, dictargs):
         dictargs["devKey"] = self.devKey
@@ -122,12 +134,20 @@ def createTestPlan(testproject_name, testplan_name):
         else:
             return False
 
+def createBuild(testplanid, name):
+    args = {}
+    args["testplanid"] = testplanid
+    args["buildname"] = name
+    builddata = client.createBuild()
+    print(builddata)
+
 if not isExist(testproject_name):
     exit(1)
 
 if not createTestPlan(testproject_name, testplan_name):
     exit(1)
 else:
+    createBuild(jsondata["testplan"]["id"], buildname.split()[0])
     print(jsondata)
     jsonstr = json.dumps(jsondata, sort_keys=True, indent=4)
     with open("testlink.json", "w") as f:
