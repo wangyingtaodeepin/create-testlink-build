@@ -6,7 +6,7 @@ import requests
 import json
 import os
 
-testproject_name = os.getenv("testproject_name") or None
+testproject_name = os.getenv("testproject_name") or "桌面版系统升级测试"
 testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
 SERVER_URL_ENV = os.getenv("SERVER_URL") or None
