@@ -32,7 +32,7 @@ def get_reviewIdTopic(id):
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
         return None
-    return review_topic
+    return {"topic": review_topic, "name": buildname}
 
 def timestamp2datetime(timestamp, convert_to_local=False):
     if isinstance(timestamp, int):
@@ -43,7 +43,10 @@ def timestamp2datetime(timestamp, convert_to_local=False):
     return timestamp
 
 if None == testplan_name:
-    testplan_name = get_reviewIdTopic(review_id)
+    data = get_reviewIdTopic(review_id)
+    print(data)
+    review_topic = data["topic"]
+    buildname = data["name"]
 
 if None == testproject_name or None == testplan_name or None == TESTLINKAPIKEY or None == SERVER_URL_ENV:
     print("Can not get the value of the params: testproject_name or testplan_name")
