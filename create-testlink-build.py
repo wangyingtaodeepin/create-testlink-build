@@ -148,7 +148,8 @@ if not isExist(testproject_name):
 if not createTestPlan(testproject_name, testplan_name):
     exit(1)
 else:
-    createBuild(jsondata["testplan"]["id"], buildname.split()[0])
+    print(buildname)
+    createBuild(jsondata["testplan"]["id"], str(buildname).split()[0])
     print(jsondata)
     jsonstr = json.dumps(jsondata, sort_keys=True, indent=4)
     with open("testlink.json", "w") as f:
