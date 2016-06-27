@@ -20,7 +20,7 @@ def get_reviewIdTopic(id):
         return None
     headers = {"Access-Token":rr_token}
     review_path = "review"
-    url_review = "/".join(host, review_path, review_id)
+    url_review = "/".join((host, review_path, review_id))
     data_response = requests.get(url_review, headers=headers)
     jsondata = json.loads(data_response.text)
     review_topic = ''
