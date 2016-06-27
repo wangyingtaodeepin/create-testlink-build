@@ -142,7 +142,7 @@ def createBuild(testplanid, name):
     args = {}
     args["testplanid"] = testplanid
     args["buildname"] = name
-    builddata = client.createBuild()
+    builddata = client.createBuild(args)
     print(builddata)
 
 if not isExist(testproject_name):
