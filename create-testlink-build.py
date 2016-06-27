@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import xmlrpc.client
+import requests
 import json
 import os
 
@@ -9,6 +10,31 @@ testproject_name = os.getenv("testproject_name") or None
 testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
 SERVER_URL_ENV = os.getenv("SERVER_URL") or None
+review_id = None
+
+def get_reviewIdTopic(id):
+    review_id = os.environ.get('REVIEW_ID') or None
+    host = os.environ.get('HOST_API') or None
+    rr_token = os.environ.get('RR_TOKEN') or None
+    if None == review_id or None == host or None == rr_token:
+        return None
+    headers = {"Access-Token":rr_token}
+    review_path = "review"
+    url_review = "/".join(host, review_path, review_id)
+    data_response = requests.get(url_review, headers=headers)
+    jsondata = json.loads(data_response.text)
+    review_topic = ''
+    try:
+        review_topic = review_id + ' ' + jsondata["result"]["topic"]
+    except Exception:
+        print("Got keyError Exception jsondata['result']['topic']")
+        return None
+    return review_topic
+
+
+
+if None == testplan_name:
+    testplan_name = get_reviewIdTopic(review_id)
 
 if None == testproject_name or None == testplan_name or None == TESTLINKAPIKEY or None == SERVER_URL_ENV:
     print("Can not get the value of the params: testproject_name or testplan_name")
