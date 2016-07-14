@@ -11,17 +11,20 @@ testproject_name = os.getenv("testproject_name") or "桌面版系统升级测试
 testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
 SERVER_URL_ENV = os.getenv("SERVER_URL") or None
-review_id = None
+DEEPINRRAPIKEY = os.getenv("DEEPINRRAPIKEY") or None
+
+host      = os.getenv("HOST_API") or None
+review_id = os.getenv("REVIEW_ID") or None
+review_path = "review"
+patch_path = "review"
 buildname = None
+rr_token = os.getenv("RR_TOKEN") or None
+headers = {"Access-Token": rr_token}
 
 def get_reviewIdTopic(id):
-    review_id = os.environ.get('REVIEW_ID') or None
-    host = os.environ.get('HOST_API') or None
     rr_token = os.environ.get('RR_TOKEN') or None
     if None == review_id or None == host or None == rr_token:
         return None
-    headers = {"Access-Token":rr_token}
-    review_path = "review"
     url_review = "/".join((host, review_path, review_id))
     data_response = requests.get(url_review, headers=headers)
     jsondata = json.loads(data_response.text)
@@ -104,6 +107,7 @@ client = TestlinkAPIClient(TESTLINKAPIKEY)
 jsondata = {}
 jsondata["project"] = {}
 jsondata["testplan"] = {}
+jsondata["build"] = {}
 
 def isExist(testproject_name):
     projectsdata = client.getProjects()
@@ -135,15 +139,34 @@ def createTestPlan(testproject_name, testplan_name):
             jsondata["testplan"]["name"] = testplan_name
             print("Create test plan ok!")
             return True
-        else:
-            return False
+        return False
 
-def createBuild(testplanid, name):
+def createBuild(testplanid, buildname):
     args = {}
     args["testplanid"] = testplanid
-    args["buildname"] = name
+    args["buildname"] = buildname
     builddata = client.createBuild(args)
     print(builddata)
+    if 'id' in builddata[0].keys():
+        jsondata["build"]["id"] = builddata[0]["id"]
+        jsondata["build"]["name"] = buildname
+        return True
+    return False
+
+def patchReview(tl_test_plan, tl_build_id, tl_test_plan_id):
+    print("In function patchReview:")
+    print(tl_test_plan)
+    print(tl_build_id)
+    print(tl_test_plan_id)
+    url_patch = "/".join((host, patch_path, review_id))
+    data_patch = {"tl_test_plan": tl_test_plan,
+                  "tl_build_id": tl_build_id,
+                  "tl_test_plan_id": tl_test_plan_id}
+    returndata = requests.patch(url_patch, data=data_patch, headers=headers)
+    if returndata.status_code == 200:
+        return True
+    else:
+        return False
 
 if not isExist(testproject_name):
     exit(1)
@@ -152,7 +175,17 @@ if not createTestPlan(testproject_name, testplan_name):
     exit(1)
 else:
     print(buildname)
-    createBuild(jsondata["testplan"]["id"], str(buildname).split()[0])
+    if createBuild(jsondata["testplan"]["id"], str(buildname).split()[0]):
+        print("Create build version ok.")
+        testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
+                      % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
+        print(testplanurl)
+        if patchReview(testplanurl, str(jsondata["build"]["id"]), str(jsondata["testplan"]["id"])):
+            print("Update review ok.")
+        else:
+            print("Update review fail.")
+    else:
+        print("Create build version fail")
     print(jsondata)
     jsonstr = json.dumps(jsondata, sort_keys=True, indent=4)
     with open("testlink.json", "w") as f:
