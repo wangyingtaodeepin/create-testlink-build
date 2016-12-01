@@ -136,7 +136,8 @@ def getTestCasesForProject():
         args_suite["testsuiteid"] = suiteid
         args_suite["details"] = "full"
         args_suite["getkeywords"] = "true"
-        print(client.getTestCasesForTestSuite(args_suite)
+        print(client.getTestCasesForTestSuite(args_suite))
+        print("-" * 80)
 
 def createTestPlan(testproject_name, testplan_name):
     args = {}
