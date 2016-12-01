@@ -14,6 +14,7 @@ testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
 SERVER_URL_ENV = os.getenv("SERVER_URL") or None
 DEEPINRRAPIKEY = os.getenv("DEEPINRRAPIKEY") or None
+keywords = os.getenv("keywords") or None
 
 host      = os.getenv("HOST_API") or None
 review_id = os.getenv("REVIEW_ID") or None
@@ -126,11 +127,12 @@ def isExist(testproject_name):
     print("Can't find the project: %s" % testproject_name)
     return False
 
-def getTestCasesForProject():
+def getTestCasesForProject(testproject_id, testplan_id):
     tuple_suiteid = getProjectAllSuite()
     if tuple_suiteid == None:
         return None
 
+    keywordlist = keywords.split(';')
     for suiteid in tuple_suiteid:
         args_suite = {}
         args_suite["testsuiteid"] = suiteid
@@ -138,8 +140,20 @@ def getTestCasesForProject():
         args_suite["getkeywords"] = "true"
         allcasedetails = client.getTestCasesForTestSuite(args_suite)
         for row in allcasedetails:
-            for key in row.keys():
-                print(key + "\t:\t" + str(row[key]))
+            if not "keywords" in row:
+                continue
+
+            for keyid in row["keywords"].keys():
+                if row["keywords"][keyid]["keyword"] in keywordlist:
+                    for key in row.keys():
+                        print(key + "\t:\t" + str(row[key]))
+
+                    args_case = {}
+                    args_case["testprojectid"] = testproject_id
+                    args_case["testplanid"] = testplan_id
+                    args_case["testcaseexternalid"] = row["external_id"]
+                    args_case["version"] = row["version"]
+                    print(client.addTestCaseToTestPlan(args_case))
 
         print("-" * 80)
 
@@ -152,7 +166,7 @@ def createTestPlan(testproject_name, testplan_name):
     if "id" in plandata[0].keys():
         jsondata["testplan"]["id"] = plandata[0]["id"]
         jsondata["testplan"]["name"] = plandata[0]["name"]
-        getTestCasesForProject()
+        getTestCasesForProject(jsondata["project"]["id"], jsondata["testplan"]["id"])
         return True
     else:
         print("Create test plan: %s" % testplan_name)
@@ -162,6 +176,7 @@ def createTestPlan(testproject_name, testplan_name):
             jsondata["testplan"]["id"] = returndata[0]["id"]
             jsondata["testplan"]["name"] = testplan_name
             print("Create test plan ok!")
+            getTestCasesForProject(jsondata["project"]["id"], jsondata["testplan"]["id"])
             return True
         return False
 
