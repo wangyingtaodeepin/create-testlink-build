@@ -152,7 +152,7 @@ def getTestCasesForProject(testproject_id, testplan_id):
                     args_case["testprojectid"] = testproject_id
                     args_case["testplanid"] = testplan_id
                     args_case["testcaseexternalid"] = row["external_id"]
-                    args_case["version"] = row["version"]
+                    args_case["version"] = int(row["version"])
                     print(client.addTestCaseToTestPlan(args_case))
 
         print("-" * 80)
