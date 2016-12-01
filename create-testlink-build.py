@@ -198,13 +198,13 @@ def main():
         print(buildname)
         if createBuild(jsondata["testplan"]["id"], str(buildname).split()[0]):
             print("Create build version ok.")
-            testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
-                          % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
-            print(testplanurl)
-            if patchReview(testplanurl, str(jsondata["build"]["id"]), str(jsondata["testplan"]["id"])):
-                print("Update review ok.")
-            else:
-                print("Update review fail.")
+            #testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
+            #              % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
+            #print(testplanurl)
+            #if patchReview(testplanurl, str(jsondata["build"]["id"]), str(jsondata["testplan"]["id"])):
+            #    print("Update review ok.")
+            #else:
+            #    print("Update review fail.")
         else:
             print("Create build version fail")
 
