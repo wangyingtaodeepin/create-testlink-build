@@ -136,7 +136,11 @@ def getTestCasesForProject():
         args_suite["testsuiteid"] = suiteid
         args_suite["details"] = "full"
         args_suite["getkeywords"] = "true"
-        print(client.getTestCasesForTestSuite(args_suite))
+        allcasedetails = client.getTestCasesForTestSuite(args_suite)
+        for row in allcasedetails:
+            for key in row.keys():
+                print(key + "\t:\t" + str(row[key]))
+
         print("-" * 80)
 
 def createTestPlan(testproject_name, testplan_name):
