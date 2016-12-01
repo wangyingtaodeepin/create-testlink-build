@@ -7,6 +7,8 @@ import requests
 import json
 import os
 
+from mysql import getProjectAllSuite
+
 testproject_name = os.getenv("testproject_name") or "桌面版系统升级测试"
 testplan_name    = os.getenv("testplan_name")    or None
 TESTLINKAPIKEY = os.getenv("TESTLINKAPIKEY") or None
@@ -101,6 +103,10 @@ class TestlinkAPIClient:
         dictargs["devKey"] = self.devKey
         return self.server.tl.getTestSuitesForTestPlan(dictargs)
 
+    def getTestCasesForTestSuite(self, dictargs):
+        dictargs["devKey"] = self.devKey
+        return self.server.tl.getTestCasesForTestSuite(dictargs)
+
 # substitute your Dev Key Here
 client = TestlinkAPIClient(TESTLINKAPIKEY)
 
@@ -120,6 +126,18 @@ def isExist(testproject_name):
     print("Can't find the project: %s" % testproject_name)
     return False
 
+def getTestCasesForProject():
+    tuple_suiteid = getProjectAllSuite()
+    if tuple_suiteid == None:
+        return None
+
+    for suiteid in tuple_suiteid:
+        args_suite = {}
+        args_suite["testsuiteid"] = suiteid
+        args_suite["details"] = "full"
+        args_suite["getkeywords"] = "true"
+        print(client.getTestCasesForTestSuite(args_suite)
+
 def createTestPlan(testproject_name, testplan_name):
     args = {}
     args["testprojectname"] = testproject_name
@@ -129,6 +147,7 @@ def createTestPlan(testproject_name, testplan_name):
     if "id" in plandata[0].keys():
         jsondata["testplan"]["id"] = plandata[0]["id"]
         jsondata["testplan"]["name"] = plandata[0]["name"]
+        getTestCasesForProject()
         return True
     else:
         print("Create test plan: %s" % testplan_name)
@@ -168,26 +187,31 @@ def patchReview(tl_test_plan, tl_build_id, tl_test_plan_id):
     else:
         return False
 
-if not isExist(testproject_name):
-    exit(1)
+def main():
+    if not isExist(testproject_name):
+        exit(1)
 
-if not createTestPlan(testproject_name, testplan_name):
-    exit(1)
-else:
-    print(buildname)
-    if createBuild(jsondata["testplan"]["id"], str(buildname).split()[0]):
-        print("Create build version ok.")
-        testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
-                      % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
-        print(testplanurl)
-        if patchReview(testplanurl, str(jsondata["build"]["id"]), str(jsondata["testplan"]["id"])):
-            print("Update review ok.")
-        else:
-            print("Update review fail.")
+    if not createTestPlan(testproject_name, testplan_name):
+        exit(1)
     else:
-        print("Create build version fail")
-    print(jsondata)
-    jsonstr = json.dumps(jsondata, sort_keys=True, indent=4)
-    with open("testlink.json", "w") as f:
-        f.write(jsonstr)
-        f.close()
+        print(buildname)
+        if createBuild(jsondata["testplan"]["id"], str(buildname).split()[0]):
+            print("Create build version ok.")
+            testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
+                          % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
+            print(testplanurl)
+            if patchReview(testplanurl, str(jsondata["build"]["id"]), str(jsondata["testplan"]["id"])):
+                print("Update review ok.")
+            else:
+                print("Update review fail.")
+        else:
+            print("Create build version fail")
+
+        print(jsondata)
+        jsonstr = json.dumps(jsondata, sort_keys=True, indent=4)
+        with open("testlink.json", "w") as f:
+            f.write(jsonstr)
+            f.close()
+
+if __name__ == "__main__":
+    main()
