@@ -19,7 +19,7 @@ host      = os.getenv("HOST_API") or None
 review_id = os.getenv("REVIEW_ID") or None
 review_path = "review"
 patch_path = "review"
-buildname = None
+buildname = os.getenv("version_flag_name") or None
 rr_token = os.getenv("RR_TOKEN") or None
 headers = {"Access-Token": rr_token}
 
