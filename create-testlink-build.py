@@ -133,6 +133,13 @@ def getTestCasesForProject(testproject_id, testplan_id):
         return None
 
     keywordlist = keywords.split(';')
+    print(keywordlist)
+    pkglist = getPkgsName(review_id)
+    print(pkglist)
+
+    if keywordlist != None:
+        allkeywords = keywordlist + pkglist
+
     for suiteid in tuple_suiteid:
         args_suite = {}
         args_suite["testsuiteid"] = suiteid
@@ -206,6 +213,26 @@ def patchReview(tl_test_plan, tl_build_id, tl_test_plan_id):
         return True
     else:
         return False
+
+def getRpaUrl():
+    url_review = "/".join((host, review_path, review_id))
+    url_info = requests.get(url_review, headers=headers)
+    rpa_url = url_info.json()['result']['rpa']
+    return rpa_url
+
+def getdatajson():
+    rpa_url = getRpaUrl()
+    json_url = rpa_url + '/checkupdate/data.json'
+    url_info = requests.get(json_url, headers=headers)
+    datajson = url_info.json()
+    return datajson
+
+def getPkgsName():
+    packages_names = []
+    datajson = getdatajson()
+    for data in datajson:
+        packages_names.append(data["name"])
+    return packages_names
 
 def main():
     if not isExist(testproject_name):
