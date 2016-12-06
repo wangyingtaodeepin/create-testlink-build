@@ -134,7 +134,7 @@ def getTestCasesForProject(testproject_id, testplan_id):
 
     keywordlist = keywords.split(';')
     print(keywordlist)
-    pkglist = getPkgsName(review_id)
+    pkglist = getPkgsName()
     print(pkglist)
 
     if keywordlist != None:
