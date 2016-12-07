@@ -136,6 +136,8 @@ def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
     if tuple_suiteid == None:
         return None
 
+    print(tuple_suiteid)
+
     keywordlist = keywords.split(';')
     print(keywordlist)
     pkglist = getPkgsName()
@@ -143,6 +145,8 @@ def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
 
     if keywordlist != None:
         allkeywords = keywordlist + pkglist
+    else:
+        allkeywords = pkglist
 
     for suiteid in tuple_suiteid:
         args_suite = {}
@@ -151,27 +155,25 @@ def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
         args_suite["getkeywords"] = "true"
         allcasedetails = client.getTestCasesForTestSuite(args_suite)
         for row in allcasedetails:
-            if not "keywords" in row:
-                continue
+            if "keywords" in row:
+                for keyid in row["keywords"].keys():
+                    if row["keywords"][keyid]["keyword"] in keywordlist:
+                        for key in row.keys():
+                            print(key + "\t:\t" + str(row[key]))
 
-            for keyid in row["keywords"].keys():
-                if row["keywords"][keyid]["keyword"] in keywordlist:
-                    for key in row.keys():
-                        print(key + "\t:\t" + str(row[key]))
-
-                    args_case = {}
-                    args_case["testprojectid"] = testproject_id
-                    args_case["testplanid"] = testplan_id
-                    args_case["testcaseexternalid"] = row["external_id"]
-                    args_case["version"] = int(row["version"])
-                    print(client.addTestCaseToTestPlan(args_case))
-                    args_assign = {}
-                    args_assign["testplanid"] = testplan_id
-                    args_assign["testcaseexternalid"] = row["external_id"]
-                    args_assign["buildid"] = testbuild_id
-                    args_assign["user"] = "zhaofangfang"
-                    print(client.assignTestCaseExecutionTask(args_assign))
-                    print("-" * 80)
+                        args_case = {}
+                        args_case["testprojectid"] = testproject_id
+                        args_case["testplanid"] = testplan_id
+                        args_case["testcaseexternalid"] = row["external_id"]
+                        args_case["version"] = int(row["version"])
+                        print(client.addTestCaseToTestPlan(args_case))
+                        args_assign = {}
+                        args_assign["testplanid"] = testplan_id
+                        args_assign["testcaseexternalid"] = row["external_id"]
+                        args_assign["buildid"] = testbuild_id
+                        args_assign["user"] = "zhaofangfang"
+                        print(client.assignTestCaseExecutionTask(args_assign))
+                        print("-" * 80)
 
         print("-" * 80)
 
