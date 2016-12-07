@@ -148,6 +148,8 @@ def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
     else:
         allkeywords = pkglist
 
+    print(allkeywords)
+
     for suiteid in tuple_suiteid:
         args_suite = {}
         args_suite["testsuiteid"] = suiteid
@@ -157,7 +159,7 @@ def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
         for row in allcasedetails:
             if "keywords" in row:
                 for keyid in row["keywords"].keys():
-                    if row["keywords"][keyid]["keyword"] in keywordlist:
+                    if row["keywords"][keyid]["keyword"] in allkeywords:
                         for key in row.keys():
                             print(key + "\t:\t" + str(row[key]))
 
