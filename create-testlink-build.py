@@ -131,7 +131,7 @@ def isExist(testproject_name):
     print("Can't find the project: %s" % testproject_name)
     return False
 
-def getTestCasesForProject(testproject_id, testplan_id):
+def getTestCasesForProject(testproject_id, testplan_id, testbuild_id):
     tuple_suiteid = getProjectAllSuite()
     if tuple_suiteid == None:
         return None
