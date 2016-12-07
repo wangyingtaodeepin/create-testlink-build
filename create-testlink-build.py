@@ -108,6 +108,10 @@ class TestlinkAPIClient:
         dictargs["devKey"] = self.devKey
         return self.server.tl.getTestCasesForTestSuite(dictargs)
 
+    def assignTestCaseExecutionTask(self, dictargs):
+        dictargs["devKey"] = self.devKey
+        return self.server.tl.assignTestCaseExecutionTask(dictargs)
+
 # substitute your Dev Key Here
 client = TestlinkAPIClient(TESTLINKAPIKEY)
 
@@ -161,6 +165,13 @@ def getTestCasesForProject(testproject_id, testplan_id):
                     args_case["testcaseexternalid"] = row["external_id"]
                     args_case["version"] = int(row["version"])
                     print(client.addTestCaseToTestPlan(args_case))
+                    args_assign = {}
+                    args_assign["testplanid"] = testplan_id
+                    args_assign["testcaseexternalid"] = row["external_id"]
+                    args_assign["buildid"] = testbuild_id
+                    args_assign["user"] = "zhaofangfang"
+                    print(client.assignTestCaseExecutionTask(args_assign))
+                    print("-" * 80)
 
         print("-" * 80)
 
@@ -173,7 +184,6 @@ def createTestPlan(testproject_name, testplan_name):
     if "id" in plandata[0].keys():
         jsondata["testplan"]["id"] = plandata[0]["id"]
         jsondata["testplan"]["name"] = plandata[0]["name"]
-        getTestCasesForProject(jsondata["project"]["id"], jsondata["testplan"]["id"])
         return True
     else:
         print("Create test plan: %s" % testplan_name)
@@ -183,7 +193,6 @@ def createTestPlan(testproject_name, testplan_name):
             jsondata["testplan"]["id"] = returndata[0]["id"]
             jsondata["testplan"]["name"] = testplan_name
             print("Create test plan ok!")
-            getTestCasesForProject(jsondata["project"]["id"], jsondata["testplan"]["id"])
             return True
         return False
 
@@ -244,6 +253,7 @@ def main():
         print(buildname)
         if createBuild(jsondata["testplan"]["id"], str(buildname).split()[0]):
             print("Create build version ok.")
+            getTestCasesForProject(jsondata["project"]["id"], jsondata["testplan"]["id"], jsondata["build"]["id"])
             testplanurl = 'https://testlink.deepin.io/lnl.php?apikey=%s&tproject_id=%s&tplan_id=%s&type=test_report' \
                           % (DEEPINRRAPIKEY, jsondata['project']['id'], jsondata['testplan']['id'])
             print(testplanurl)
