@@ -24,6 +24,9 @@ buildname = os.getenv("version_flag_name") or None
 rr_token = os.getenv("RR_TOKEN") or None
 headers = {"Access-Token": rr_token}
 
+latest_patch_set = None
+old_testplanid = None
+
 def get_reviewIdTopic(id):
     rr_token = os.environ.get('RR_TOKEN') or None
     if None == review_id or None == host or None == rr_token:
@@ -35,6 +38,8 @@ def get_reviewIdTopic(id):
     try:
         review_topic = review_id + ' ' + jsondata["result"]["topic"]
         buildname = timestamp2datetime(jsondata["result"]["submit_timestamp"])
+        latest_patch_set = jsondata["result"]["latest_patch_set"]
+        old_testplanid = jsondata["result"]["itl_test_plan_id"]
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
         return None
@@ -111,6 +116,10 @@ class TestlinkAPIClient:
     def assignTestCaseExecutionTask(self, dictargs):
         dictargs["devKey"] = self.devKey
         return self.server.tl.assignTestCaseExecutionTask(dictargs)
+
+    def deleteTestPlan(self, dictargs):
+        dictargs["devKey"] = self.devKey
+        return self.server.tl.deleteTestPlan(dictargs)
 
 # substitute your Dev Key Here
 client = TestlinkAPIClient(TESTLINKAPIKEY)
@@ -235,7 +244,7 @@ def getRpaUrl():
 
 def getdatajson():
     rpa_url = getRpaUrl()
-    json_url = rpa_url + '/checkupdate/data.json'
+    json_url = rpa_url + '/checkupdate/' +latest_patch_set +'/data.json'
     url_info = requests.get(json_url, headers=headers)
     datajson = url_info.json()
     return datajson
@@ -250,6 +259,12 @@ def getPkgsName():
 def main():
     if not isExist(testproject_name):
         exit(1)
+
+    if int(latest_patch_set) > 0:
+        args_deletePlan = {}
+        args_deletePlan = {"testplanid": old_testplanid}
+        ret = client.deleteTestPlan(args_deletePlan)
+        print(ret)
 
     if not createTestPlan(testproject_name, testplan_name):
         exit(1)
