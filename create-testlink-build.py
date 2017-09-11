@@ -253,7 +253,7 @@ def getRpaUrl():
 
 def getdatajson():
     rpa_url = getRpaUrl()
-    json_url = rpa_url + '/checkupdate/' +latest_patch_set +'/data.json'
+    json_url = rpa_url + '/checkupdate/' + str(latest_patch_set) +'/data.json'
     url_info = requests.get(json_url, headers=headers)
     datajson = url_info.json()
     return datajson
