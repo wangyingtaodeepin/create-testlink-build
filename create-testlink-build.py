@@ -38,7 +38,9 @@ def get_reviewIdTopic(id):
     try:
         review_topic = review_id + ' ' + jsondata["result"]["topic"]
         buildname = timestamp2datetime(jsondata["result"]["submit_timestamp"])
+        global latest_patch_set
         latest_patch_set = jsondata["result"]["latest_patch_set"]
+        global old_testplanid
         old_testplanid = jsondata["result"]["tl_test_plan_id"]
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
