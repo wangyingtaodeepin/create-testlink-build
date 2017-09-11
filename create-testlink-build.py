@@ -58,12 +58,6 @@ def timestamp2datetime(timestamp, convert_to_local=False):
 if None == testplan_name:
     data = get_reviewIdTopic(review_id)
 
-    if int(latest_patch_set) > 0:
-        args_deletePlan = {}
-        args_deletePlan = {"testplanid": old_testplanid}
-        ret = client.deleteTestPlan(args_deletePlan)
-        print(ret)
-
     print(data)
     testplan_name = data["topic"]
     buildname = data["name"]
@@ -268,6 +262,12 @@ def getPkgsName():
 def main():
     if not isExist(testproject_name):
         exit(1)
+
+    if int(latest_patch_set) > 0:
+        args_deletePlan = {}
+        args_deletePlan = {"testplanid": old_testplanid}
+        ret = client.deleteTestPlan(args_deletePlan)
+        print(ret)
 
     if not createTestPlan(testproject_name, testplan_name):
         exit(1)
