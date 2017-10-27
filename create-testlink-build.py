@@ -44,6 +44,8 @@ def get_reviewIdTopic(id):
         old_testplanid = jsondata["result"]["tl_test_plan_id"]
     except Exception:
         print("Got keyError Exception jsondata['result']['topic']")
+        print("jsondata.text: ")
+        print(data_response.text)
         return None
     return {"topic": review_topic, "name": buildname}
 
