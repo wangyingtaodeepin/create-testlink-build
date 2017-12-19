@@ -61,7 +61,7 @@ if None == testplan_name:
     data = get_reviewIdTopic(review_id)
 
     print(data)
-    testplan_name = data["topic"]
+    testplan_name = data["topic"] + " P" + str(int(latest_patch_set) + 1)
     buildname = data["name"]
 
 if None == testproject_name or None == testplan_name or None == TESTLINKAPIKEY or None == SERVER_URL_ENV:
